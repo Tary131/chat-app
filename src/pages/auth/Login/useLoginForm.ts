@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSignInMutation } from '../../../redux/slices/authSlice.ts';
+import { useSignInMutation } from '../../../redux/api/authApi.ts';
 import { ROUTES } from '@/constants/routes';
 import { LoginValues } from '@/types/formValues';
-import { FirebaseAuthError } from '@/types/FirebaseAuthError.ts';
-import {INVALID_EMAIL, TOO_MANY_REQUESTS, USER_NOT_FOUND, WRONG_PASSWORD, INVALID_CREDENTIAL} from "../../../constants/firebaseErrors.ts";
+import { FirebaseAuthError } from '@/types/FirebaseAuthError';
+import {
+  INVALID_EMAIL,
+  TOO_MANY_REQUESTS,
+  USER_NOT_FOUND,
+  WRONG_PASSWORD,
+  INVALID_CREDENTIAL,
+} from '../../../constants/firebaseErrors';
 
 export const useLoginForm = () => {
   const [errorMessage, setErrorMessage] = useState('');
@@ -16,7 +22,8 @@ export const useLoginForm = () => {
     [INVALID_EMAIL]: 'Invalid email address. Please check your input.',
     [USER_NOT_FOUND]: 'No user found with this email.',
     [WRONG_PASSWORD]: 'Incorrect password. Please try again.',
-    [TOO_MANY_REQUESTS]: 'Too many requests. Your account will be blocked temporarily.',
+    [TOO_MANY_REQUESTS]:
+      'Too many requests. Your account will be blocked temporarily.',
     [INVALID_CREDENTIAL]: 'Wrong email or password.',
   };
 
@@ -26,6 +33,7 @@ export const useLoginForm = () => {
 
     try {
       await signIn(data).unwrap();
+      //setAuthUser()
       setSuccessMessage('Logged in successfully!');
       reset();
 
@@ -37,7 +45,9 @@ export const useLoginForm = () => {
   };
   const handleFirebaseError = (error: FirebaseAuthError) => {
     if (error?.status) {
-      setErrorMessage(errorMessages[error.status] || 'An unknown error occurred.');
+      setErrorMessage(
+        errorMessages[error.status] || 'An unknown error occurred.'
+      );
     } else {
       setErrorMessage(error?.message || 'An unknown error occurred.');
     }

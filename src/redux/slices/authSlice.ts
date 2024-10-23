@@ -1,82 +1,25 @@
-import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
-import { signIn, registerUser, signOutUser } from '@/services/authServices.ts';
-import { FirebaseError } from 'firebase/app';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-export const authApi = createApi({
-  reducerPath: 'authApi',
-  baseQuery: fakeBaseQuery(),
-  endpoints: (builder) => ({
-    signIn: builder.mutation({
-      async queryFn({ email, password }) {
-        try {
-          const data = await signIn(email, password);
-          return { data };
-        } catch (error) {
-          if (error instanceof FirebaseError) {
-            return { error: { status: error.code, message: error.message } };
-          } else if (error instanceof Error) {
-            return {
-              error: { status: 'CUSTOM_ERROR', message: error.message },
-            };
-          } else {
-            return {
-              error: {
-                status: 'CUSTOM_ERROR',
-                message: 'An unknown error occurred',
-              },
-            };
-          }
-        }
-      },
-    }),
-    logout: builder.mutation({
-      async queryFn() {
-        try {
-          await signOutUser();
-          return { data: { success: true } };
-        } catch (error) {
-          if (error instanceof FirebaseError) {
-            return { error: { status: error.code, message: error.message } };
-          } else if (error instanceof Error) {
-            return {
-              error: { status: 'CUSTOM_ERROR', message: error.message },
-            };
-          } else {
-            return {
-              error: {
-                status: 'CUSTOM_ERROR',
-                message: 'An unknown error occurred',
-              },
-            };
-          }
-        }
-      },
-    }),
-    register: builder.mutation({
-      async queryFn({ email, password, firstName, lastName }) {
-        try {
-          const data = await registerUser(email, password, firstName, lastName);
-          return { data };
-        } catch (error) {
-          if (error instanceof FirebaseError) {
-            return { error: { status: error.code, message: error.message } };
-          } else if (error instanceof Error) {
-            return {
-              error: { status: 'CUSTOM_ERROR', message: error.message },
-            };
-          } else {
-            return {
-              error: {
-                status: 'CUSTOM_ERROR',
-                message: 'An unknown error occurred',
-              },
-            };
-          }
-        }
-      },
-    }),
-  }),
+type AuthState = {
+  authUserId: string | null;
+  fullDisplayName: string | null;
+};
+const initialState: AuthState = {
+  authUserId: null,
+  fullDisplayName: null,
+};
+const authSlice = createSlice({
+  name: 'auth',
+  initialState,
+  reducers: {
+    setAuthUserId: (state, action: PayloadAction<string | null>) => {
+      state.authUserId = action.payload;
+    },
+    setFullDisplayName: (state, action: PayloadAction<string | null>) => {
+      state.fullDisplayName = action.payload;
+    },
+  },
 });
 
-export const { useSignInMutation, useRegisterMutation, useLogoutMutation } =
-  authApi;
+export const { setAuthUserId, setFullDisplayName } = authSlice.actions;
+export default authSlice.reducer;

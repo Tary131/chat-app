@@ -1,17 +1,17 @@
 import MainPage from '@/pages/MainPage.tsx';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './pages/ProtectedRoute';
-import RegisterForm from '@/pages/auth/Register/RegisterForm.tsx';
-import RootLayout from '@/app/layout.tsx';
-import LoginForm from '@/pages/auth/Login/LoginForm.tsx';
-
+import RegisterForm from '@/pages/auth/Register/RegisterForm';
+import RootLayout from '@/app/layout';
+import LoginForm from '@/pages/auth/Login/LoginForm';
+import ChatList from '@/pages/Sidebar/ChatList';
+import ChatWindow from '@/pages/Chat/ChatWindow.tsx';
 
 const App = () => {
   const props = {
-    left: (
-      <div></div>
-    ),
-    right: <div>Right Section</div>,
+    left: <ChatList />,
+
+    right: <ChatWindow />,
   };
   return (
     <RootLayout>
