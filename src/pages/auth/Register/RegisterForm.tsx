@@ -42,7 +42,9 @@ const RegisterForm = () => {
     <div className="flex items-center justify-center min-h-screen">
       <Card className="mx-auto max-w-sm md:max-w-md lg:max-w-lg">
         <CardHeader>
-          <CardTitle className=" flex justify-center text-xl">Sign Up</CardTitle>
+          <CardTitle className=" flex justify-center text-xl">
+            Sign Up
+          </CardTitle>
           <CardDescription>
             Enter your information to create an account
           </CardDescription>

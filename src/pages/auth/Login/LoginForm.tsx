@@ -12,7 +12,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { EmailField, PasswordField } from '../FormFields';
 import { LoginValues } from '@/types/formValues';
 import { ROUTES } from '@/constants/routes';
-import { Spinner } from '@/components/custom/Spinner.tsx';
+import { Spinner } from '@/components/custom/Spinner';
 import { loginSchema } from './validationSchema';
 import { useLoginForm } from './useLoginForm';
 import MessageDisplay from '../MessageDisplay';
@@ -38,7 +38,9 @@ const LoginForm = () => {
     <div className="flex items-center justify-center min-h-screen">
       <Card className="mx-auto max-w-sm md:max-w-md lg:max-w-lg">
         <CardHeader>
-          <CardTitle className=" flex justify-center text-xl">Sign In</CardTitle>
+          <CardTitle className=" flex justify-center text-xl">
+            Sign In
+          </CardTitle>
           <CardDescription>
             Enter your email and password to access your account
           </CardDescription>
