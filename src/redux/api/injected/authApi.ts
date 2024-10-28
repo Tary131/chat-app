@@ -1,10 +1,8 @@
-import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 import { signIn, registerUser, signOutUser } from '@/services/authServices.ts';
 import { FirebaseError } from 'firebase/app';
+import { firebaseApi } from '@/redux/api/firebaseApi.ts';
 
-export const authApi = createApi({
-  reducerPath: 'authApi',
-  baseQuery: fakeBaseQuery(),
+export const authApi = firebaseApi.injectEndpoints({
   endpoints: (builder) => ({
     signIn: builder.mutation({
       async queryFn({ email, password }) {
