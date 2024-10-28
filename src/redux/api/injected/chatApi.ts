@@ -1,11 +1,10 @@
-import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react';
 import { fetchChatsForUser, sendMessage } from '@/services/chatServices.ts';
 import { handleFirebaseError } from '@/utils/errorHandling.ts';
 import { Message } from '@/types/chatTypes.ts';
+import { createNewChat } from '@/services/chatServices.ts';
+import { firebaseApi } from '@/redux/api/firebaseApi.ts';
 
-export const chatApi = createApi({
-  reducerPath: 'chatApi',
-  baseQuery: fakeBaseQuery(),
+export const chatApi = firebaseApi.injectEndpoints({
   endpoints: (builder) => ({
     getChatsForUser: builder.query({
       async queryFn(userId) {
@@ -27,7 +26,21 @@ export const chatApi = createApi({
         }
       },
     }),
+    createChat: builder.mutation({
+      async queryFn({ participantIds, participants }) {
+        try {
+          await createNewChat(participantIds, participants);
+          return { data: undefined };
+        } catch (error: unknown) {
+          return handleFirebaseError(error);
+        }
+      },
+    }),
   }),
 });
 
-export const { useGetChatsForUserQuery, useSendMessageMutation } = chatApi;
+export const {
+  useGetChatsForUserQuery,
+  useSendMessageMutation,
+  useCreateChatMutation,
+} = chatApi;
