@@ -13,8 +13,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useLogoutMutation } from '../../redux/api/authApi.ts';
+import { useLogoutMutation } from '../../redux/api/injected/authApi.ts';
 import { useNavigate } from 'react-router-dom';
+import { markUserOffline } from '@/services/userServices';
 
 const ProfileSheet: FC = () => {
   const [logout] = useLogoutMutation();
@@ -22,6 +23,7 @@ const ProfileSheet: FC = () => {
 
   const handleLogout = async () => {
     try {
+      await markUserOffline();
       await logout({}).unwrap();
 
       navigate('/login');
