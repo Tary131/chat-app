@@ -1,10 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { useSendMessageMutation } from '@/redux/api/chatApi';
-import { useAppSelector } from '@/redux/hooks/reduxHooks.ts';
 import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { selectAuthUserId } from '@/redux/selectors/selectors';
+import useSendMessage from '@/hooks/useSendMessage';
 
 type MessageFormProps = {
   selectedChatId: string | null;
@@ -15,26 +13,23 @@ type MessageFormValues = {
 };
 
 const MessageInput: React.FC<MessageFormProps> = ({ selectedChatId }) => {
-  const { register, handleSubmit, reset } = useForm<MessageFormValues>();
-  const [sendMessage] = useSendMessageMutation();
-  const authUserId = useAppSelector(selectAuthUserId);
+  const { register, handleSubmit, reset, setFocus } =
+    useForm<MessageFormValues>();
+  const { sendNewMessage } = useSendMessage();
+
+  useEffect(() => {
+    if (selectedChatId) {
+      setFocus('messageContent');
+    }
+  }, [selectedChatId, setFocus]);
 
   const onSendMessage: SubmitHandler<MessageFormValues> = async (data) => {
-    console.log('onSendMessage triggered');
-    if (selectedChatId) {
-      const newMessage = {
-        id: Date.now().toString(),
-        content: data.messageContent,
-        senderId: authUserId,
-        timestamp: Date.now(),
-      };
-
-      await sendMessage({
-        chatId: selectedChatId,
-        message: newMessage,
-      }).unwrap();
-
+    console.log('Form submitted:', data.messageContent);
+    try {
+      await sendNewMessage(selectedChatId, data.messageContent);
       reset({ messageContent: '' });
+    } catch (error) {
+      console.error('Error while sending message:', error);
     }
   };
 
