@@ -8,26 +8,28 @@ import {
   ResizablePanel,
   ResizableHandle,
 } from '@/components/ui/resizable.tsx';
-import { selectSelectedChatId } from '@/redux/selectors/selectors';
-
+import {
+  selectSelectedChatId,
+  selectAuthUserId,
+} from '@/redux/selectors/selectors';
 import { Message } from '@/types/chatTypes.ts';
 
 const ChatWindow = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const selectedChatId = useAppSelector(selectSelectedChatId);
+  const currentUserId = useAppSelector(selectAuthUserId);
 
   useEffect(() => {
-    if (selectedChatId) {
+    if (selectedChatId && currentUserId) {
       const unsubscribe = listenToChatMessages(
         selectedChatId,
         (updatedMessages: Message[]) => {
           setMessages(updatedMessages);
         }
       );
-
       return () => unsubscribe();
     }
-  }, [selectedChatId]);
+  }, [selectedChatId, currentUserId]);
 
   return (
     <ResizablePanelGroup direction="vertical">
