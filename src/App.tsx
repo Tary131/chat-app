@@ -10,7 +10,7 @@ import ChatWindow from '@/pages/Chat/ChatWindow.tsx';
 import {
   initializeUserPresence,
   cleanupUserPresence,
-} from '@/services/userServices';
+} from '@/services/userPresenceService';
 
 const App = () => {
   const props = {
