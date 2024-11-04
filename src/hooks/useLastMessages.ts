@@ -4,7 +4,7 @@ import { Message } from '@/types/chatTypes.ts';
 import {
   markLastMessageAsRead,
   listenToLastMessage,
-} from '@/services/chatServices.ts';
+} from '@/services/messageService';
 import { useAppSelector } from '@/redux/hooks/reduxHooks';
 import {
   selectAuthUserId,
@@ -27,7 +27,7 @@ const useLastMessages = () => {
     refetch,
     isLoading,
     isError,
-  } = useGetChatsForUserQuery(authUserId, {
+  } = useGetChatsForUserQuery(authUserId || "", {
     skip: !authUserId,
   });
 
@@ -36,7 +36,6 @@ const useLastMessages = () => {
 
     const unsubscribeListeners = chats.map((chat) => {
       if (chat.id) {
-        // Check if chat.id is valid
         return listenToLastMessage(chat.id, (lastMessage) => {
           setChatLastMessages((prev) => ({
             ...prev,
