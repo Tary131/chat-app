@@ -18,8 +18,7 @@ import { useAppSelector } from '@/redux/hooks/reduxHooks';
 
 type User = {
   id: string;
-  firstName?: string;
-  lastName?: string;
+  fullName?: string;
 };
 
 const NewChatDialog = () => {
@@ -42,14 +41,13 @@ const NewChatDialog = () => {
     if (selectedUser && currentUserId && currentUserName) {
       const participants = [
         { id: currentUserId, name: currentUserName },
-        { id: selectedUser.id, name: selectedUser.firstName || '' },
+        { id: selectedUser.id, name: selectedUser.fullName || '' },
       ];
       try {
         await createChat({
           participantIds: [selectedUser.id, currentUserId],
           participants,
         });
-        console.log(`Chat created with ${selectedUser.firstName}`);
         setSelectedUser(null);
         setIsDialogOpen(false);
       } catch (error) {
@@ -86,7 +84,7 @@ const NewChatDialog = () => {
                 className={`cursor-pointer p-2 ${selectedUser?.id === user.id ? 'bg-gray-200' : ''}`}
                 onClick={() => setSelectedUser(user)}
               >
-                {user.firstName} {user.lastName}
+                {user.fullName}
               </li>
             ))}
           </ul>
