@@ -4,6 +4,7 @@ export type Message = {
   id: string;
   content: string;
   senderId: string | null;
+  imageUrl: string | null;
   timestamp: number;
   isRead?: boolean;
   readBy?: string[] | null;
@@ -40,6 +41,7 @@ export type ChatItemProps = {
   isSelected: boolean;
   authUserId: string | null;
   userStatus: { [key: string]: { isOnline: boolean; lastSeen: Date | null } };
+  avatarUrls: string[];
 };
 
 export type AuthState = {
@@ -55,7 +57,7 @@ export type UserData = {
 export type ChatData = {
   participants: Participant[];
   messages: Message[];
-  createdAt: any; // serverTimestamp
-  updatedAt: any; // serverTimestamp
+  createdAt: any;
+  updatedAt: any;
   chatKey: string;
 };
