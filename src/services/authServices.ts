@@ -7,7 +7,7 @@ import {
 import { doc, setDoc } from 'firebase/firestore';
 import { db, auth } from '@/firebaseConfig';
 import { setAuthToken, removeAuthToken } from '@/utils/cookieUtils.ts';
-//Log in logic for user
+//Sign in logic for user
 export const signIn = async (email: string, password: string) => {
   const userCredential = await signInWithEmailAndPassword(
     auth,
@@ -33,21 +33,21 @@ export const registerUser = async (
     email,
     password
   );
-
+  const fullName = `${firstName} ${lastName}`;
+  const normalizedFullName = fullName.toLowerCase().replace(/\s+/g, '');
   const { user } = userCredential;
   const { uid, email: userEmail } = user;
 
   await setDoc(doc(db, 'users', uid), {
     email: userEmail,
     uid,
-    firstName,
-    lastName,
+    fullName,
+    normalizedFullName,
     createdAt: new Date().toISOString(),
   });
-  const displayName = `${firstName} ${lastName}`;
+  const displayName = fullName;
   await updateProfile(user, { displayName });
   const token = await userCredential.user.getIdToken();
-  console.log(token);
   setAuthToken(token);
 
   return { uid, email: userEmail };
