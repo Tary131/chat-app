@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAppSelector } from '@/redux/hooks/reduxHooks.ts';
-import { listenToChatMessages } from '@/services/chatServices.ts';
+import { listenToChatMessages } from '@/services/messageService';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import {
@@ -18,6 +18,7 @@ const ChatWindow = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const selectedChatId = useAppSelector(selectSelectedChatId);
   const currentUserId = useAppSelector(selectAuthUserId);
+
 
   useEffect(() => {
     if (selectedChatId && currentUserId) {
