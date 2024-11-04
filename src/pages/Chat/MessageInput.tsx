@@ -1,59 +1,87 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { useSendMessageMutation } from '@/redux/api/chatApi';
-import { useAppSelector } from '@/redux/hooks/reduxHooks.ts';
-import { Input } from '@/components/ui/input.tsx';
-import { Button } from '@/components/ui/button.tsx';
-import { selectAuthUserId } from '@/redux/selectors/selectors';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import useSendMessage from '@/hooks/useSendMessage';
+import ImageUploader from './ImageUploader';
+import LoadingIndicator from './LoadingIndicator';
+import ErrorMessage from './ErrorMessage';
+import { FaPaperPlane } from 'react-icons/fa';
+import { BsEmojiSunglassesFill } from "react-icons/bs";
+import EmojiPickerDialog from './EmojiPickerDialog';
 
 type MessageFormProps = {
-  selectedChatId: string | null;
+    selectedChatId: string | null;
 };
 
 type MessageFormValues = {
-  messageContent: string;
+    messageContent: string;
 };
 
 const MessageInput: React.FC<MessageFormProps> = ({ selectedChatId }) => {
-  const { register, handleSubmit, reset } = useForm<MessageFormValues>();
-  const [sendMessage] = useSendMessageMutation();
-  const authUserId = useAppSelector(selectAuthUserId);
+    const { register, handleSubmit, reset, setFocus, setValue, getValues } = useForm<MessageFormValues>();
+    const { sendNewMessage } = useSendMessage();
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
 
-  const onSendMessage: SubmitHandler<MessageFormValues> = async (data) => {
-    console.log('onSendMessage triggered');
-    if (selectedChatId) {
-      const newMessage = {
-        id: Date.now().toString(),
-        content: data.messageContent,
-        senderId: authUserId,
-        timestamp: Date.now(),
-      };
+    useEffect(() => {
+        if (selectedChatId) setFocus('messageContent');
+    }, [selectedChatId, setFocus]);
 
-      await sendMessage({
-        chatId: selectedChatId,
-        message: newMessage,
-      }).unwrap();
+    const onSendMessage: SubmitHandler<MessageFormValues> = async (data) => {
+        try {
+            const finalImageUrl = imageUrl || undefined;
+            await sendNewMessage(selectedChatId, data.messageContent, finalImageUrl);
+            reset();
+            setImageUrl(null);
+            setError(null);
+        } catch (error) {
+            console.error('Error while sending message:', error);
+            setError('Failed to send message. Please try again.');
+        }
+    };
 
-      reset({ messageContent: '' });
-    }
-  };
+    const handleEmojiSelect = (emojiData: { emoji: string }) => {
+        const currentMessage = getValues('messageContent') || "";
+        setValue('messageContent', currentMessage + emojiData.emoji);
+        setShowEmojiPicker(false);
+    };
 
-  return (
-    <form
-      onSubmit={handleSubmit(onSendMessage)}
-      className="flex items-center gap-2"
-    >
-      <Input
-        type="text"
-        placeholder="Type a message..."
-        {...register('messageContent', { required: true })}
-        className="flex-1"
-      />
-      <Button type="submit" className="text-white hover:bg-green-600">
-        Send
-      </Button>
-    </form>
-  );
+    return (
+        <div className="relative">
+            <form onSubmit={handleSubmit(onSendMessage)} className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                    <Input
+                        type="text"
+                        placeholder="Type a message..."
+                        {...register('messageContent')}
+                        className="flex-1"
+                    />
+                    <Button
+                        type="button"
+                        onClick={() => setShowEmojiPicker(true)}
+                        className="text-black hover:bg-black"
+                    >
+                        <BsEmojiSunglassesFill className="text-white"  />
+                    </Button>
+                    <ImageUploader setImageUrl={setImageUrl} setLoading={setLoading} />
+                    <Button type="submit" className="text-white hover:bg-black" disabled={loading}>
+                        {loading ? <LoadingIndicator /> : <FaPaperPlane />}
+                    </Button>
+                </div>
+
+                {error && <ErrorMessage message={error} />}
+            </form>
+
+            <EmojiPickerDialog
+                isOpen={showEmojiPicker}
+                onClose={() => setShowEmojiPicker(false)}
+                onEmojiSelect={handleEmojiSelect}
+            />
+        </div>
+    );
 };
 
 export default MessageInput;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRegisterMutation } from '../../../redux/api/authApi.ts';
+import { useRegisterMutation } from '../../../redux/api/injected/authApi.ts';
 import { ROUTES } from '@/constants/routes.ts';
 import { LoginValues } from '@/types/formValues.ts';
 import { FirebaseAuthError } from '@/types/FirebaseAuthError.ts';

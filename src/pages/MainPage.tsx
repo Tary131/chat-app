@@ -15,17 +15,13 @@ const MainPage: FC<MainPageProps> = ({ left, right }) => {
     <div className="h-screen relative">
       <ResizablePanelGroup direction="horizontal">
         {/* Left panel */}
-        <ResizablePanel defaultSize={25} >
-          {left}
-        </ResizablePanel>
+        <ResizablePanel defaultSize={25}>{left}</ResizablePanel>
 
         {/* Resizable handle */}
         <ResizableHandle withHandle />
 
         {/* Right panel */}
-        <ResizablePanel defaultSize={75} >
-          {right}
-        </ResizablePanel>
+        <ResizablePanel defaultSize={75}>{right}</ResizablePanel>
       </ResizablePanelGroup>
 
       {/* Profile sheet */}

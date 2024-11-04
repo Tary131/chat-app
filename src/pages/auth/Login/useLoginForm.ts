@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSignInMutation } from '../../../redux/api/authApi.ts';
+import { useSignInMutation } from '../../../redux/api/injected/authApi.ts';
 import { ROUTES } from '@/constants/routes';
 import { LoginValues } from '@/types/formValues';
 import { FirebaseAuthError } from '@/types/FirebaseAuthError';

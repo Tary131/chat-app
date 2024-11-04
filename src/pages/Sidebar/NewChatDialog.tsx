@@ -8,10 +8,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useForm } from 'react-hook-form';
-import {
-  useCreateChatMutation,
-  useSearchUsersQuery,
-} from '@/redux/api/userApi';
+import { useSearchUsersQuery } from '@/redux/api/injected/userApi.ts';
+import { useCreateChatMutation } from '@/redux/api/injected/chatApi.ts';
 import {
   selectAuthUserId,
   selectFullDisplayName,
@@ -20,7 +18,7 @@ import { useAppSelector } from '@/redux/hooks/reduxHooks';
 
 type User = {
   id: string;
-  firstName?: string;
+  fullName?: string;
 };
 
 const NewChatDialog = () => {
@@ -39,19 +37,17 @@ const NewChatDialog = () => {
   const handleSearchInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
-
   const handleCreateChat = async () => {
     if (selectedUser && currentUserId && currentUserName) {
       const participants = [
         { id: currentUserId, name: currentUserName },
-        { id: selectedUser.id, name: selectedUser.firstName || '' },
+        { id: selectedUser.id, name: selectedUser.fullName || '' },
       ];
       try {
         await createChat({
           participantIds: [selectedUser.id, currentUserId],
           participants,
         });
-        console.log(`Chat created with ${selectedUser.firstName}`);
         setSelectedUser(null);
         setIsDialogOpen(false);
       } catch (error) {
@@ -88,7 +84,7 @@ const NewChatDialog = () => {
                 className={`cursor-pointer p-2 ${selectedUser?.id === user.id ? 'bg-gray-200' : ''}`}
                 onClick={() => setSelectedUser(user)}
               >
-                {user.firstName}
+                {user.fullName}
               </li>
             ))}
           </ul>

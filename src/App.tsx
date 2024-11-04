@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import MainPage from '@/pages/MainPage.tsx';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './pages/ProtectedRoute';
@@ -6,6 +7,10 @@ import RootLayout from '@/app/layout';
 import LoginForm from '@/pages/auth/Login/LoginForm';
 import ChatList from '@/pages/Sidebar/ChatList';
 import ChatWindow from '@/pages/Chat/ChatWindow.tsx';
+import {
+  initializeUserPresence,
+  cleanupUserPresence,
+} from '@/services/userPresenceService';
 
 const App = () => {
   const props = {
@@ -13,6 +18,13 @@ const App = () => {
 
     right: <ChatWindow />,
   };
+  useEffect(() => {
+    initializeUserPresence();
+
+    return () => {
+      cleanupUserPresence();
+    };
+  }, []);
   return (
     <RootLayout>
       <BrowserRouter>

@@ -1,8 +1,13 @@
+import { Timestamp } from 'firebase/firestore';
+
 export type Message = {
   id: string;
   content: string;
   senderId: string | null;
+  imageUrl: string | null;
   timestamp: number;
+  isRead?: boolean;
+  readBy?: string[] | null;
 };
 
 export type Participant = {
@@ -30,12 +35,29 @@ export type Chat = {
 
 export type ChatItemProps = {
   chat: Chat;
+  lastMessage: Message | null;
   getParticipantNames: (participants: Participant[]) => string;
   handleChatSelect: (chatId: string) => void;
   isSelected: boolean;
+  authUserId: string | null;
+  userStatus: { [key: string]: { isOnline: boolean; lastSeen: Date | null } };
+  avatarUrls: string[];
 };
 
 export type AuthState = {
   authUserId: string | null;
   fullDisplayName: string | null;
+};
+export type UserData = {
+  firstName: string;
+  chatsId?: string[];
+  isOnline?: boolean;
+  lastSeen?: Timestamp | null;
+};
+export type ChatData = {
+  participants: Participant[];
+  messages: Message[];
+  createdAt: any;
+  updatedAt: any;
+  chatKey: string;
 };

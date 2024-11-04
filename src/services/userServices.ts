@@ -1,65 +1,88 @@
 import {
   collection,
-  addDoc,
-  updateDoc,
   doc,
-  arrayUnion,
-  query,
-  where,
-  getDocs,
+  updateDoc,
+  getDoc,
+  serverTimestamp,
+  onSnapshot, where, query, getDocs
 } from 'firebase/firestore';
-import { db } from '../firebaseConfig';
-import { Participant } from '@/types/chatTypes.ts';
+import { db, auth } from '@/firebaseConfig';
+import { UserData } from '../types/chatTypes';
+import { logError } from './utils';
 
-// Firestore references
-const chatsRef = collection(db, 'chats');
 const usersRef = collection(db, 'users');
-//Search users
-export const searchUsersByName = async (name: string) => {
-  const q = query(
-    usersRef,
-    where('firstName', '>=', name),
-    where('firstName', '<=', name + '\uf8ff')
-  );
-  const querySnapshot = await getDocs(q);
-  const users = querySnapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
-  return users;
-};
-//Create a new chat
-export const createNewChat = async (
-  participantIds: string[],
-  participants: Participant[]
-) => {
+
+export const updateUserFullName = async (userId: string, fullName: string): Promise<void> => {
+  if (!userId) {
+    throw new Error("User ID is required");
+  }
   try {
-    const newChat = {
-      participants,
-      messages: [],
-      createdAt: Date.now().toString(),
-      updatedAt: Date.now().toString(),
-    };
-
-    const chatDocRef = await addDoc(chatsRef, newChat);
-    console.log('New chat created with ID: ', chatDocRef.id);
-
-    await updateParticipantsChats(participantIds, chatDocRef.id);
-
-    console.log('Participants updated successfully');
-  } catch (e) {
-    console.error('Error creating chat or updating participants:', e);
+    const userDocRef = doc(db, 'users', userId);
+    await updateDoc(userDocRef, { fullName });
+  } catch (error) {
+    logError("Error updating user full name: ", error);
+    throw error;
   }
 };
-// Helper function
-async function updateParticipantsChats(participants: string[], chatId: string) {
-  const updatePromises = participants.map(async (userId) => {
-    const userDocRef = doc(usersRef, userId);
 
+export const fetchUserData = async () => {
+  const userId = auth.currentUser?.uid;
+  if (!userId) {
+    throw new Error('User is not authenticated');
+  }
+  const userDoc = doc(db, 'users', userId);
+  const userSnap = await getDoc(userDoc);
+  if (userSnap.exists()) {
+    return userSnap.data();
+  } else {
+    throw new Error('No such user!');
+  }
+};
+
+export const updateUserStatus = async (userId: string, isOnline: boolean): Promise<void> => {
+  const userDocRef = doc(usersRef, userId);
+  try {
     await updateDoc(userDocRef, {
-      chatsId: arrayUnion(chatId),
+      isOnline,
+      lastSeen: isOnline ? null : serverTimestamp(),
     });
-  });
+  } catch (error) {
+    logError('Error updating user status', error);
+  }
+};
 
-  await Promise.all(updatePromises);
-}
+export const listenToUserStatus = (
+    userId: string,
+    callback: (isOnline: boolean, lastSeen: Date | null) => void
+) => {
+  const userDocRef = doc(db, 'users', userId);
+  return onSnapshot(userDocRef, (doc) => {
+    if (doc.exists()) {
+      const userData = doc.data() as UserData;
+      callback(userData.isOnline ?? false, userData.lastSeen?.toDate() ?? null);
+    }
+  });
+};
+
+export const searchUsersByName = async (name: string) => {
+  const currentUserId = auth.currentUser?.uid;
+  const normalizedSearchName = name.trim().toLowerCase().replace(/\s+/g, '');
+  console.log('Normalized search name:', normalizedSearchName);
+  const q = query(
+      usersRef,
+      where('normalizedFullName', '>=', normalizedSearchName),
+      where('normalizedFullName', '<=', normalizedSearchName + '\uf8ff')
+  );
+  try {
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        .filter((user) => user.id !== currentUserId);
+  } catch (error) {
+    logError('Error searching users by name', error);
+    throw error;
+  }
+};
