@@ -9,7 +9,8 @@ const useSendMessage = () => {
 
   const sendNewMessage = async (
     selectedChatId: string | null,
-    messageContent: string
+    messageContent: string,
+    imageUrl?: string
   ) => {
     if (!selectedChatId) {
       throw new Error('Chat ID is required to send a message');
@@ -22,6 +23,7 @@ const useSendMessage = () => {
     const newMessage: Message = {
       id: Date.now().toString(),
       content: messageContent,
+      imageUrl: imageUrl || null,
       senderId: authUserId,
       timestamp: Date.now(),
       isRead: false,
