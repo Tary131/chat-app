@@ -11,7 +11,7 @@ const useUserStatus = () => {
     [key: string]: { isOnline: boolean; lastSeen: Date | null };
   }>({});
 
-  const { data: chats = [] } = useGetChatsForUserQuery(authUserId, {
+  const { data: chats = [] } = useGetChatsForUserQuery(authUserId || "", {
     skip: !authUserId,
   });
 
