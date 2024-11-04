@@ -15,29 +15,26 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       const handleUserOffline = async () => {
-        if (user) await updateUserStatus(user.uid, false); // Mark as offline
+        if (user) await updateUserStatus(user.uid, false);
       };
 
       if (user && token) {
-        // User is authenticated
         dispatch(setAuthUserId(user.uid));
         dispatch(setFullDisplayName(user.displayName));
         setIsAuthenticated(true);
 
-        // Set user as online in Firestore
         await updateUserStatus(user.uid, true);
 
-        // Add event listener for page unload
         window.addEventListener('beforeunload', handleUserOffline);
       } else {
-        // User is not authenticated
+
         setIsAuthenticated(false);
         dispatch(setAuthUserId(null));
         dispatch(setFullDisplayName(null));
       }
 
       return () => {
-        handleUserOffline(); // Clean up: mark offline
+        handleUserOffline();
         window.removeEventListener('beforeunload', handleUserOffline);
       };
     });
