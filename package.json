@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "ci": "yarn install --frozen-lockfile --network-timeout 900000",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
